@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>文王六爻排盤</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: 沉靜、專業的占卜工具，像一本手抄排盤冊
+   IDEA: 古籍卦盤——硃砂印、墨線、宣紙格
+   PICTURE: 大而清楚的六爻卦象本卦→變卦，即是畫面主體
+   COLOUR and TYPE: 白宣紙 / 墨黑，硃砂紅為動爻與結論，青黛為輔；Noto Serif TC 標題 + Noto Sans TC 內文
+   LAYOUT: 頂部窄標題；左欄輸入（日期、問題、搖卦），右欄卦盤；下方斷卦說明與方法 */
+:root{color-scheme:light dark;--bg:light-dark(#fbfaf7,#121416);--panel:light-dark(#ffffff,#1b1e21);--ink:light-dark(#16181a,#ecebe6);--mute:light-dark(#5d6266,#a4a9ad);--line:light-dark(#dedad0,#2e3337);--red:light-dark(#b3141f,#ff5a5f);--blue:light-dark(#1d4e63,#7cc0d8);--soft:light-dark(#f3efe5,#23272b);--good:light-dark(#1d6b45,#6fd19c)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Noto Sans TC",system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:"Noto Serif TC",serif;line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(30px,4vw,44px);font-weight:900}
+h2{font-size:24px;margin-bottom:12px}h3{font-size:18px;margin:18px 0 6px}
+.band{padding:clamp(20px,3.4vw,48px) max(4vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+header.band{padding-bottom:8px}
+header p{color:var(--mute);margin:6px 0 0}
+.seal{display:inline-grid;place-items:center;width:44px;height:44px;background:var(--red);color:#fff;font:900 22px "Noto Serif TC",serif;border-radius:6px;vertical-align:middle;margin-right:12px}
+.grid{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:24px;align-items:start}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px}
+label{display:block;font-size:14px;font-weight:700;margin:14px 0 6px}
+label:first-child{margin-top:0}
+input,select,textarea{font:16px "Noto Sans TC",sans-serif;width:100%;min-height:44px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+textarea{min-height:64px;resize:vertical}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chk{display:flex;gap:8px;align-items:center;font-weight:400;font-size:14px;color:var(--mute)}
+.chk input{width:20px;min-height:20px}
+button{font:700 15px "Noto Sans TC",sans-serif;min-height:44px;padding:0 16px;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:var(--bg);cursor:pointer}
+button.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.cal{background:var(--soft);border-radius:10px;padding:12px 14px;margin-top:12px;font-size:15px}
+.cal b{font-family:"Noto Serif TC",serif;font-size:18px}
+.cal .gz{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px;text-align:center}
+.cal .gz div{background:var(--panel);border-radius:6px;padding:6px 2px}
+.cal .gz small{display:block;color:var(--mute);font-size:13px}
+.cal .gz span{font:700 20px "Noto Serif TC",serif}
+.casts{display:grid;gap:6px;margin-top:6px}
+.cast{display:grid;grid-template-columns:3.2em 1fr;gap:8px;align-items:center;font-size:14px}
+.cast select{min-height:40px;padding:4px 8px}
+.hint{font-size:13px;color:var(--mute);margin:6px 0 0}
+.board-head{display:flex;flex-wrap:wrap;gap:8px 24px;align-items:baseline;margin-bottom:14px}
+.hname{font:900 clamp(26px,3.4vw,38px) "Noto Serif TC",serif}
+.hname .arrow{color:var(--mute);font-weight:500;margin:0 10px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:13px;padding:2px 10px;border-radius:99px;background:var(--soft);white-space:nowrap}
+.tag.r{background:var(--red);color:#fff}
+.scroll{overflow-x:auto}
+table.pan{border-collapse:collapse;width:100%;min-width:620px;font-size:15px}
+.pan th{font-size:13px;color:var(--mute);font-weight:500;text-align:left;padding:4px 6px;border-bottom:1px solid var(--line)}
+.pan td{padding:9px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+.pan tr.yong td{background:color-mix(in srgb,var(--red) 9%,transparent)}
+.yao{display:flex;gap:10%;width:96px;height:16px}
+.yao i{flex:1;background:var(--ink);border-radius:2px;animation:draw .5s ease-out both}
+.yao.mv i{background:var(--red)}
+.yao.bian i{background:var(--mute)}
+@keyframes draw{from{transform:scaleX(0)}}
+@media(prefers-reduced-motion:reduce){.yao i{animation:none}}
+.mk{color:var(--red);font-weight:700;display:inline-block;width:1.2em;text-align:center}
+.sy{font-weight:700;color:var(--blue)}
+.fu{color:var(--mute);font-size:14px}
+.qn{font-weight:700}
+.empty{padding:40px 10px;text-align:center;color:var(--mute)}
+.verdict{border-left:4px solid var(--red);padding:12px 16px;background:var(--soft);border-radius:0 10px 10px 0;margin:8px 0 4px}
+.verdict b{font:900 22px "Noto Serif TC",serif;color:var(--red)}
+.meter{height:10px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:8px}
+.meter div{height:100%;background:var(--red)}
+ul.pts{margin:6px 0;padding-left:1.2em}
+ul.pts li{margin:3px 0}
+.plus{color:var(--good);font-weight:700}.minus{color:var(--red);font-weight:700}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:24px}
+details{border-top:1px solid var(--line);padding:12px 0}
+summary{cursor:pointer;font-weight:700;min-height:32px}
+.note{font-size:13px;color:var(--mute)}
+dl.yt{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:8px 0}
+dl.yt dt{font-weight:700}dl.yt dd{margin:0}
+@media(max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){.cal .gz span{font-size:18px}}
+</style>
+</head>
+<body>
+<header class="band"><div class="wrap">
+ <h1><span class="seal">卦</span>文王六爻排盤</h1>
+ <p>選日期自動換算農曆與干支，三錢起卦，納甲裝卦，依所問取用神並給出旺衰分析。</p>
+</div></header>
+
+<main class="band" style="padding-top:12px"><div class="wrap">
+<div class="grid">
+ <section class="card" aria-label="起卦設定">
+  <label for="q">所問之事</label>
+  <textarea id="q" placeholder="例如：本季新產品能否順利進院？"></textarea>
+  <label for="cat">問題類別（決定用神）</label>
+  <select id="cat"></select>
+  <p class="hint" id="catHint"></p>
+  <div class="row2">
+   <div><label for="d">起卦日期</label><input type="date" id="d"></div>
+   <div><label for="t">時間（台灣時間）</label><input type="time" id="t"></div>
+  </div>
+  <label class="chk"><input type="checkbox" id="zi">23:00 後算次日（早子時換日）</label>
+  <div class="cal" id="cal" aria-live="polite"></div>
+  <label>六爻（由初爻往上擲）</label>
+  <div class="btns" style="margin-top:0">
+   <button id="toss1">擲一爻</button><button id="toss6" class="ghost">一次擲六爻</button><button id="clr" class="ghost">清除</button>
+  </div>
+  <div class="casts" id="casts"></div>
+  <p class="hint">三枚硬幣：一背＝少陽、二背＝少陰、三背＝老陽○（動）、三字＝老陰×（動）。實體擲幣時直接在下拉選單輸入結果。</p>
+ </section>
+
+ <section class="card" aria-label="卦盤" id="board"></section>
+</div>
+</div></main>
+
+<section class="band" style="padding-top:0"><div class="wrap two">
+ <div class="card" id="analysis"></div>
+ <div class="card">
+  <h2>斷卦步驟</h2>
+  <details open><summary>一、定時間：月建與日辰</summary><p>六爻以<b>月建</b>（以節氣換月，非農曆初一）和<b>日辰</b>判斷爻的旺衰。月建管一個月的大環境，日辰管當下的力量。旬空看日辰所在之旬。</p></details>
+  <details><summary>二、起卦：三錢六擲</summary><p>心中默想所問之事，搖錢六次，由下而上記為初爻到上爻。老陽、老陰為動爻，動則變，得到變卦。</p></details>
+  <details><summary>三、裝卦：納甲、六親、世應、六神</summary><p>依京房八宮定卦宮與世應；按八卦納甲配天干地支；以卦宮五行對照各爻五行定六親；依日干起六神（甲乙起青龍、丙丁朱雀、戊勾陳、己螣蛇、庚辛白虎、壬癸玄武）。用神不上卦時，取本宮首卦同位之爻為伏神。</p></details>
+  <details><summary>四、取用神</summary>
+   <dl class="yt">
+    <dt>世爻</dt><dd>自己、自身運勢、出行</dd>
+    <dt>應爻</dt><dd>對方、交易對象、目的地</dd>
+    <dt>父母</dt><dd>長輩、文書合約、房屋車輛、考試文章、消息</dd>
+    <dt>兄弟</dt><dd>兄弟朋友、同事、競爭者、破財</dd>
+    <dt>子孫</dt><dd>子女晚輩、醫藥、寵物、福神、解憂</dd>
+    <dt>妻財</dt><dd>錢財、物資、男問妻或女友、失物</dd>
+    <dt>官鬼</dt><dd>工作職位、名次、女問夫或男友、病、官司</dd>
+   </dl>
+   <p>生用神者為<b>原神</b>，剋用神者為<b>忌神</b>，生忌神者為<b>仇神</b>。</p></details>
+  <details><summary>五、斷旺衰與吉凶</summary><p>先看月日：得月日生扶為旺，受月日剋、月破、日破為衰。再看動變：回頭生、化進神增力；回頭剋、化退神、化空、化破減力。其他動爻生用神（原神動）為助，剋用神（忌神動）為害。最後看用神與世爻的生剋，以及六沖（散）、六合（聚）之象。</p><p class="note">本頁的分數只是把以上規則加總的參考值，實際斷卦仍需綜合判斷，包括三合局、進退神的細節與應期。</p></details>
+ </div>
+</div></section>
+
+<footer class="band note" style="padding-top:0"><div class="wrap">農曆換算採用瀏覽器內建中國曆；節氣以太陽黃經近似計算，節氣交接當日的前後幾小時請自行核對萬年曆。</div></footer>
+
+<script>
+// ===== 六爻核心計算（可在 node 測試，也內嵌於網頁） =====
+const GAN='甲乙丙丁戊己庚辛壬癸',ZHI='子丑寅卯辰巳午未申酉戌亥',WX='木火土金水';
+const ZE=[4,2,0,0,2,1,1,2,3,3,2,4];
+// 卦索引：初爻 bit0、二爻 bit1、三爻 bit2
+const TRI=[
+ {n:'坤',el:2,s:[1,9],b:[[7,5,3],[1,11,9]]},
+ {n:'震',el:0,s:[6,6],b:[[0,2,4],[6,8,10]]},
+ {n:'坎',el:4,s:[4,4],b:[[2,4,6],[8,10,0]]},
+ {n:'兌',el:3,s:[3,3],b:[[5,3,1],[11,9,7]]},
+ {n:'艮',el:2,s:[2,2],b:[[4,6,8],[10,0,2]]},
+ {n:'離',el:1,s:[5,5],b:[[3,1,11],[9,7,5]]},
+ {n:'巽',el:0,s:[7,7],b:[[1,11,9],[7,5,3]]},
+ {n:'乾',el:3,s:[0,8],b:[[0,2,4],[6,8,10]]}];
+const ORD=[7,3,5,1,6,2,4,0];
+const NAMEROWS=['乾為天,天澤履,天火同人,天雷無妄,天風姤,天水訟,天山遯,天地否','澤天夬,兌為澤,澤火革,澤雷隨,澤風大過,澤水困,澤山咸,澤地萃','火天大有,火澤睽,離為火,火雷噬嗑,火風鼎,火水未濟,火山旅,火地晉','雷天大壯,雷澤歸妹,雷火豐,震為雷,雷風恆,雷水解,雷山小過,雷地豫','風天小畜,風澤中孚,風火家人,風雷益,巽為風,風水渙,風山漸,風地觀','水天需,水澤節,水火既濟,水雷屯,水風井,坎為水,水山蹇,水地比','山天大畜,山澤損,山火賁,山雷頤,山風蠱,山水蒙,艮為山,山地剝','地天泰,地澤臨,地火明夷,地雷復,地風升,地水師,地山謙,坤為地'];
+const HNAME={};NAMEROWS.forEach((r,i)=>r.split(',').forEach((nm,j)=>{HNAME[ORD[j]|(ORD[i]<<3)]=nm}));
+const GEN=['八純','一世','二世','三世','四世','五世','游魂','歸魂'],SHI=[6,1,2,3,4,5,4,3];
+const PAL={};
+for(const t of ORD){let c=t|(t<<3);const seq=[c];for(const f of [1,2,4,8,16,8,7]){c^=f;seq.push(c)}seq.forEach((h,i)=>{PAL[h]={p:t,g:i,shi:SHI[i]}})}
+const QIN=['兄弟','子孫','妻財','官鬼','父母'];
+const gen=a=>(a+1)%5,ke=a=>(a+2)%5;
+function rel(pe,le){if(pe===le)return 0;if(gen(pe)===le)return 1;if(ke(pe)===le)return 2;if(ke(le)===pe)return 3;return 4}
+const chong=(a,b)=>(a-b+12)%12===6,he=(a,b)=>(a+b)%12===1;
+const JIN={11:0,2:3,5:6,8:9,1:4,4:7,7:10,10:1};
+function lines(code,pe){const lo=code&7,up=code>>3,out=[];for(let i=0;i<6;i++){const t=TRI[i<3?lo:up],z=t.b[i<3?0:1][i%3];out.push({pos:i+1,yang:(code>>i)&1,gan:t.s[i<3?0:1],zhi:z,el:ZE[z],q:rel(pe,ZE[z])})}return out}
+function hexInfo(code){const P=PAL[code],pe=TRI[P.p].el,L=lines(code,pe);let c6=true,h6=true;for(let i=0;i<3;i++){if(!chong(L[i].zhi,L[i+3].zhi))c6=false;if(!he(L[i].zhi,L[i+3].zhi))h6=false}
+ return{code,name:HNAME[code],palace:TRI[P.p].n,pe,gen:GEN[P.g],shi:P.shi,ying:(P.shi+2)%6+1,lines:L,liuchong:c6,liuhe:h6,up:TRI[code>>3].n,lo:TRI[code&7].n}}
+
+// ===== 曆法 =====
+function jdn(y,m,d){const a=Math.floor((14-m)/12),Y=y+4800-a,M=m+12*a-3;return d+Math.floor((153*M+2)/5)+365*Y+Math.floor(Y/4)-Math.floor(Y/100)+Math.floor(Y/400)-32045}
+function sunLon(utcMs){const T=(utcMs/864e5+2440587.5-2451545)/36525,r=Math.PI/180;const L0=280.46646+36000.76983*T+0.0003032*T*T,M=(357.52911+35999.05029*T-0.0001537*T*T)*r;const C=(1.914602-0.004817*T-0.000014*T*T)*Math.sin(M)+(0.019993-0.000101*T)*Math.sin(2*M)+0.000289*Math.sin(3*M);const om=(125.04-1934.136*T)*r;return(((L0+C-0.00569-0.00478*Math.sin(om))%360)+360)%360}
+const JIE=['立春','驚蟄','清明','立夏','芒種','小暑','立秋','白露','寒露','立冬','大雪','小寒'];
+const ZQ=['雨水','春分','穀雨','小滿','夏至','大暑','處暑','秋分','霜降','小雪','冬至','大寒'];
+function ganzhi(y,m,d,h,mi,lateZi){
+ const utc=Date.UTC(y,m-1,d,h-8,mi),L=sunLon(utc);
+ const off=((L-315)%360+360)%360,mi12=Math.floor(off/30),mz=(mi12+2)%12;
+ const term=(off%30)<15?JIE[mi12]:ZQ[mi12];
+ let yy=y;if(m<=2&&mi12>=10)yy--;
+ const ys=((yy-4)%10+10)%10,yz=((yy-4)%12+12)%12;
+ const ms=((ys%5)*2+2+mi12)%10;
+ let dd=new Date(Date.UTC(y,m-1,d));if(lateZi&&h>=23)dd=new Date(dd.getTime()+864e5);
+ const di=(jdn(dd.getUTCFullYear(),dd.getUTCMonth()+1,dd.getUTCDate())+49)%60;
+ const xs=di-di%10,k1=(xs%12+10)%12,k2=(xs%12+11)%12;
+ return{ys,yz,ms,mz,ds:di%10,dz:di%12,kong:[k1,k2],term,lon:L,utc};
+}
+const CS=['長生','沐浴','冠帶','臨官','帝旺','衰','病','死','墓','絕','胎','養'],CSS=[11,2,8,5,8];
+const csOf=(el,z)=>CS[(z-CSS[el]+12)%12];
+const SHEN=['青龍','朱雀','勾陳','螣蛇','白虎','玄武'],SHEN0=[0,0,1,1,2,3,4,4,5,5];
+
+{
+const $=id=>document.getElementById(id);
+const CATS=[
+ ['self','自身／整體運勢、出行','世','以世爻為自己。'],
+ ['money','求財、生意、業績、薪資','財','妻財為財，兄弟為劫財之忌神。'],
+ ['job','工作、升遷、職位、名次','官','官鬼為職位功名，父母為印信文書。'],
+ ['exam','考試、文書、合約、房屋車輛','父','父母為文書、證照、合約。'],
+ ['wife','婚戀（男問女方）','財','男占以妻財為用神。'],
+ ['husband','婚戀（女問男方）','官','女占以官鬼為用神。'],
+ ['health','健康（自占）','世','以世爻為自身，官鬼為病，子孫為醫藥。'],
+ ['elder','父母長輩','父','父母爻為長輩。'],
+ ['child','子女晚輩、寵物、醫藥','子','子孫爻為用神。'],
+ ['friend','兄弟朋友、同事、合夥','兄','兄弟爻為用神。'],
+ ['law','官司訴訟','官','官鬼為官府，世為我、應為對方，宜兼看世應。'],
+ ['lost','失物','財','妻財為失物。'],
+ ['other','對方、交易對象、客戶','應','以應爻為對方。'],
+];
+const QMAP={'兄':0,'子':1,'財':2,'官':3,'父':4};
+$('cat').innerHTML=CATS.map(c=>`<option value="${c[0]}">${c[1]}（用${c[2]==='世'||c[2]==='應'?c[2]+'爻':QIN[QMAP[c[2]]]}）</option>`).join('');
+const VAL={6:'老陰 ×（動）',7:'少陽',8:'少陰',9:'老陽 ○（動）'};
+const POS=['初爻','二爻','三爻','四爻','五爻','上爻'];
+let casts=[];
+function load(){try{const s=JSON.parse(localStorage.getItem('ly6')||'null');if(s){$('q').value=s.q||'';$('cat').value=s.cat||'money';casts=s.casts||[]}}catch(e){}}
+function save(){try{localStorage.setItem('ly6',JSON.stringify({q:$('q').value,cat:$('cat').value,casts}))}catch(e){}}
+const pad=n=>String(n).padStart(2,'0');
+{const n=new Date(Date.now()+8*36e5);$('d').value=`${n.getUTCFullYear()}-${pad(n.getUTCMonth()+1)}-${pad(n.getUTCDate())}`;$('t').value=`${pad(n.getUTCHours())}:${pad(n.getUTCMinutes())}`}
+load();
+if(!casts.length)casts=[7,8,9,7,8,7];
+const CN='〇一二三四五六七八九';
+function lunarDay(n){if(n===10)return'初十';if(n===20)return'二十';if(n===30)return'三十';return(n<=10?'初':n<20?'十':n<30?'廿':'三十')+CN[n%10]}
+function lunar(utc){try{const p=new Intl.DateTimeFormat('zh-TW-u-ca-chinese',{timeZone:'Asia/Taipei',year:'numeric',month:'long',day:'numeric'}).formatToParts(new Date(utc));const g=t=>(p.find(x=>x.type===t)||{}).value;return`農曆 ${g('yearName')||''}年 ${g('month')} ${lunarDay(+g('day'))}`}catch(e){return'此瀏覽器不支援農曆換算'}}
+function tossOne(){const r=new Uint8Array(3);crypto.getRandomValues(r);const backs=[...r].filter(x=>x&1).length;return[6,7,8,9][backs]}
+function getGZ(){const [y,m,d]=$('d').value.split('-').map(Number);const [h,mi]=($('t').value||'12:00').split(':').map(Number);if(!y)return null;return ganzhi(y,m,d,h,mi,$('zi').checked)}
+function renderCasts(){$('casts').innerHTML=[5,4,3,2,1,0].map(i=>`<div class="cast"><span>${POS[i]}</span><select data-i="${i}" aria-label="${POS[i]}"><option value="">尚未擲</option>${[7,8,9,6].map(v=>`<option value="${v}"${casts[i]===v?' selected':''}>${VAL[v]}</option>`).join('')}</select></div>`).join('')}
+const yaoHTML=(yang,cls)=>`<div class="yao ${cls}">${yang?'<i></i>':'<i></i><i></i>'}</div>`;
+const gzs=(g,z)=>GAN[g]+ZHI[z];
+
+function strength(l,G,moving,chg,others){
+ const pts=[];let s=0;const el=l.el,me=ZE[G.mz],de=ZE[G.dz];
+ // 月建
+ if(l.zhi===G.mz){s+=2;pts.push(['+','臨月建，當令最旺'])}
+ else if(chong(l.zhi,G.mz)){s-=2;pts.push(['-','逢月破（與月建相沖）'])}
+ else if(me===el){s+=2;pts.push(['+','與月建同五行，旺'])}
+ else if(gen(me)===el){s+=1;pts.push(['+','月建生之，相'])}
+ else if(gen(el)===me){pts.push(['0','生月建而洩氣，休'])}
+ else if(ke(el)===me){s-=1;pts.push(['-','剋月建，囚'])}
+ else {s-=2;pts.push(['-','受月建剋，死'])}
+ if(he(l.zhi,G.mz))pts.push(['0','與月建相合'])
+ // 日辰
+ const strong=s>0;
+ if(l.zhi===G.dz){s+=2;pts.push(['+','臨日辰'])}
+ else if(chong(l.zhi,G.dz)){if(moving){s-=1;pts.push(['-','動而逢日沖，力量被沖散'])}else if(strong){s+=0.5;pts.push(['+','旺而逢日沖，為暗動'])}else{s-=1.5;pts.push(['-','衰而逢日沖，為日破'])}}
+ else if(de===el){s+=1.5;pts.push(['+','日辰比扶'])}
+ else if(gen(de)===el){s+=1.5;pts.push(['+','日辰生之'])}
+ else if(ke(de)===el){s-=1.5;pts.push(['-','受日辰剋'])}
+ if(he(l.zhi,G.dz)){s+=0.5;pts.push(['+',moving?'動而逢日合，為合住（暫不能動）':'靜而逢日合，為合起'])}
+ const cs=csOf(el,G.dz);if(['長生','帝旺'].includes(cs)){s+=0.5;pts.push(['+','在日辰'+cs])}else if(['墓','絕'].includes(cs)){s-=0.5;pts.push(['-','在日辰'+cs])}
+ if(G.kong.includes(l.zhi))pts.push(['0',s>0?'旬空，但旺不為空，出旬或逢沖即實':'旬空且衰，為真空，事難成'])
+ // 動變
+ if(moving&&chg){const c=chg.zhi,ce=ZE[c];
+  if(gen(ce)===el){s+=1.5;pts.push(['+',`化出${ZHI[c]}${WX[ce]}，回頭生`])}
+  else if(ke(ce)===el){s-=2;pts.push(['-',`化出${ZHI[c]}${WX[ce]}，回頭剋`])}
+  if(JIN[l.zhi]===c){s+=1;pts.push(['+','化進神'])}else if(JIN[c]===l.zhi){s-=1;pts.push(['-','化退神'])}
+  if(chong(l.zhi,c))pts.push(['-','化回頭沖，主反覆'])
+  if(G.kong.includes(c))pts.push(['-','化空'])
+  if(chong(c,G.mz))pts.push(['-','化月破'])
+  if(c===l.zhi)pts.push(['0','伏吟（化出同支），主呻吟不進'])
+ }
+ // 他爻動
+ let yuan=false,ji=false;
+ for(const o of others){if(gen(o.el)===el){s+=1;yuan=true;pts.push(['+',`${POS[o.pos-1]}${QIN[o.q]}${ZHI[o.zhi]}動來生（原神動）`])}else if(ke(o.el)===el){s-=1;ji=true;pts.push(['-',`${POS[o.pos-1]}${QIN[o.q]}${ZHI[o.zhi]}動來剋（忌神動）`])}}
+ if(yuan&&ji){s+=1;pts.push(['+','原神、忌神同動，忌生原、原生用，轉為連續相生'])}
+ return{s,pts};
+}
+
+function render(){
+ save();renderCasts();
+ const G=getGZ();const cat=CATS.find(c=>c[0]===$('cat').value);$('catHint').textContent=cat[3];
+ if(!G){$('cal').textContent='請選擇日期';return}
+ $('cal').innerHTML=`<b>${lunar(G.utc)}</b><div class="note">節氣：${G.term}（太陽黃經 ${G.lon.toFixed(1)}°）</div><div class="gz">${[['年',G.ys,G.yz],['月建',G.ms,G.mz],['日辰',G.ds,G.dz]].map(x=>`<div><small>${x[0]}</small><span>${gzs(x[1],x[2])}</span></div>`).join('')}<div><small>旬空</small><span>${G.kong.map(k=>ZHI[k]).join('')}</span></div></div>`;
+ const done=casts.filter(v=>v).length;
+ if(done<6){$('board').innerHTML=`<div class="empty">已擲 ${done}／6 爻。<br>六爻擲完即自動排盤。</div>`;$('analysis').innerHTML='<h2>用神分析</h2><p class="note">排盤完成後顯示。</p>';return}
+ let bc=0,cc=0;casts.forEach((v,i)=>{const yang=v===7||v===9;if(yang)bc|=1<<i;const ny=v===9?0:v===6?1:yang;if(ny)cc|=1<<i});
+ const B=hexInfo(bc),moving=casts.map(v=>v===6||v===9),hasMv=moving.some(x=>x);
+ const C=hasMv?hexInfo(cc):null;
+ const cl=C?C.lines.map(l=>({...l,q:rel(B.pe,l.el)})):null; // 變爻六親依本宮
+ const s0=SHEN0[G.ds];
+ // 伏神
+ const pure=hexInfo((PAL[bc].p)|(PAL[bc].p<<3));
+ const present=new Set(B.lines.map(l=>l.q));
+ // 用神
+ let yongIdx=[],fu=null,yname;
+ if(cat[2]==='世'){yongIdx=[B.shi-1];yname='世爻'}
+ else if(cat[2]==='應'){yongIdx=[B.ying-1];yname='應爻'}
+ else{const q=QMAP[cat[2]];yname=QIN[q];yongIdx=B.lines.filter(l=>l.q===q).map(l=>l.pos-1);
+  if(!yongIdx.length){const p=pure.lines.find(l=>l.q===q);if(p)fu=p}}
+ const fuRows={};for(const p of pure.lines)if(!present.has(p.q))fuRows[p.pos-1]=p;
+ const showFu=Object.keys(fuRows).length>0;
+ const tag=(t,r)=>`<span class="tag${r?' r':''}">${t}</span>`;
+ const head=h=>`${h.palace}宮・${h.gen}・宮五行${WX[h.pe]}`;
+ $('board').innerHTML=`<div class="board-head"><div class="hname">${B.name}${C?`<span class="arrow">→</span>${C.name}`:''}</div><div class="tags">${tag(head(B))}${B.liuchong?tag('六沖卦',1):''}${B.liuhe?tag('六合卦',1):''}${C?tag('變卦：'+C.palace+'宮'+C.gen)+(C.liuchong?tag('變六沖',1):'')+(C.liuhe?tag('變六合',1):''):tag('靜卦（無動爻）')}</div></div>
+ <div class="scroll"><table class="pan"><thead><tr><th>六神</th>${showFu?'<th>伏神</th>':''}<th>本卦</th><th></th><th>世應</th><th></th>${C?'<th>變卦</th><th></th>':''}</tr></thead><tbody>
+ ${[5,4,3,2,1,0].map(i=>{const l=B.lines[i],mv=moving[i],c=cl&&cl[i],f=fuRows[i];
+  return`<tr class="${yongIdx.includes(i)||(fu&&fu.pos===i+1)?'yong':''}"><td>${SHEN[(s0+i)%6]}</td>${showFu?`<td class="fu">${f?QIN[f.q]+gzs(f.gan,f.zhi)+WX[f.el]:''}</td>`:''}<td><span class="qn">${QIN[l.q]}</span> ${gzs(l.gan,l.zhi)}${WX[l.el]}</td><td>${yaoHTML(l.yang,mv?'mv':'')}</td><td class="sy">${B.shi===i+1?'世':B.ying===i+1?'應':''}</td><td><span class="mk">${casts[i]===9?'○':casts[i]===6?'×':''}</span></td>${C?`<td>${mv?`<span class="qn">${QIN[c.q]}</span> ${gzs(c.gan,c.zhi)}${WX[c.el]}`:''}</td><td>${yaoHTML(c.yang,'bian')}</td>`:''}</tr>`}).join('')}
+ </tbody></table></div><p class="note">底色標示用神所在爻。${C?'變卦六親依本卦宮五行取。':''}</p>`;
+ // 分析
+ const movers=B.lines.filter((l,i)=>moving[i]);
+ let html=`<h2>用神分析</h2>`;
+ if($('q').value.trim()){const p=document.createElement('p');p.textContent='所問：'+$('q').value.trim();html+=p.outerHTML}
+ const ye=yongIdx.length?B.lines[yongIdx[0]].el:fu?fu.el:null;
+ html+=`<p>本題取 <b>${yname}</b> 為用神。${ye!=null?`用神屬${WX[ye]}，原神為${WX[(ye+4)%5]}、忌神為${WX[(ye+3)%5]}、仇神為${WX[(ye+2)%5]}。`:''}</p>`;
+ let cand=[];
+ if(yongIdx.length){cand=yongIdx.map(i=>{const l=B.lines[i];return{l,i,r:strength(l,G,moving[i],cl&&cl[i],movers.filter(o=>o.pos!==l.pos))}});
+  if(cand.length>1){html+=`<p class="note">用神兩現以上：取動不取靜、取持世應者、取旺者，下方已排序，以第一個為主。</p>`;
+   cand.sort((a,b)=>(moving[b.i]-moving[a.i])||(((b.i+1===B.shi||b.i+1===B.ying)?1:0)-((a.i+1===B.shi||a.i+1===B.ying)?1:0))||(b.r.s-a.r.s))}}
+ else if(fu){const fly=B.lines[fu.pos-1];const r=strength(fu,G,false,null,movers);
+  if(gen(fly.el)===fu.el){r.s+=1;r.pts.push(['+','飛神生伏神，伏神得助'])}else if(ke(fly.el)===fu.el){r.s-=1.5;r.pts.push(['-','飛神剋伏神，伏神受制'])}else if(gen(fu.el)===fly.el)r.pts.push(['-','伏神生飛神，洩氣'])
+  if(moving[fu.pos-1]||chong(fly.zhi,G.dz))r.pts.push(['+','飛神動或逢日沖，伏神可出'])
+  r.pts.unshift(['0',`用神不上卦，伏於${POS[fu.pos-1]}${QIN[fly.q]}${ZHI[fly.zhi]}之下：${QIN[fu.q]}${gzs(fu.gan,fu.zhi)}${WX[fu.el]}`]);
+  cand=[{l:fu,i:fu.pos-1,r,fu:true}]}
+ for(const [k,c] of cand.entries()){const sc=c.r.s,lv=sc>=2.5?'旺而有力':sc>=0.5?'中平，可用':sc>-1.5?'偏衰':'衰弱無力';
+  html+=`<div class="verdict"><div class="note">${c.fu?'伏神':POS[c.i]+' '+QIN[c.l.q]+gzs(c.l.gan,c.l.zhi)+WX[c.l.el]}${k?'（次）':''}</div><b>${lv}</b> <span class="note">參考分 ${sc>0?'+':''}${sc}</span><div class="meter"><div style="width:${Math.max(4,Math.min(100,(sc+5)*10))}%"></div></div></div><ul class="pts">${c.r.pts.map(p=>`<li><span class="${p[0]==='+'?'plus':p[0]==='-'?'minus':''}">${p[0]==='+'?'＋':p[0]==='-'?'－':'・'}</span> ${p[1]}</li>`).join('')}</ul>`}
+ // 世與用神
+ const shiL=B.lines[B.shi-1];
+ if(cand.length&&!cand[0].fu&&cat[2]!=='世'){const y=cand[0].l;let t='';
+  if(cand[0].i===B.shi-1)t='用神持世，所求之事與自己緊密相關，易得。';
+  else if(gen(y.el)===shiL.el)t='用神生世，事來就我，有利。';
+  else if(y.el===shiL.el)t='用神與世爻同五行，相扶。';
+  else if(ke(y.el)===shiL.el)t=(y.q===3?'官鬼剋世，占病占訟皆不宜；占職位則為功名逼身。':'用神剋世，事來逼我，可得但多勞。');
+  else if(gen(shiL.el)===y.el)t='世生用神，我去求之，須付出。';
+  else if(ke(shiL.el)===y.el)t='世剋用神，我能掌控，須主動。';
+  if(he(y.zhi,shiL.zhi))t+=' 用神與世爻相合，有合作、牽連之象。';
+  if(chong(y.zhi,shiL.zhi))t+=' 用神與世爻相沖，有阻隔、變動之象。';
+  html+=`<h3>世爻與用神</h3><p>${t}</p>`}
+ // 卦象整體
+ const g=[];
+ if(!hasMv)g.push('靜卦：無動爻，事情維持現狀，以用神旺衰與日辰判斷。');
+ if(movers.length>=4)g.push('動爻多，事情變化大、牽涉面廣。');
+ if(B.liuchong)g.push('本卦六沖：主散、主速，近事易有變動；久病逢沖則有轉機。');
+ if(B.liuhe)g.push('本卦六合：主聚、主成，但也主拖延。');
+ if(C&&B.liuhe&&C.liuchong)g.push('六合變六沖：先合後散，起頭順利、後段生變。');
+ if(C&&B.liuchong&&C.liuhe)g.push('六沖變六合：先散後合，先難後易。');
+ if(C){for(const [a,nm] of [[0,'內卦'],[3,'外卦']]){if(!moving.slice(a,a+3).some(x=>x))continue;const bz=B.lines.slice(a,a+3).map(l=>l.zhi),cz=C.lines.slice(a,a+3).map(l=>l.zhi);if(bz.every((z,i)=>z===cz[i]))g.push(nm+'伏吟：主憂悶、進退不得。');else if(bz.every((z,i)=>chong(z,cz[i])))g.push(nm+'反吟：主反覆、去而復來。')}}
+ const shiCS=csOf(shiL.el,G.dz);g.push(`世爻${ZHI[shiL.zhi]}${WX[shiL.el]}在日辰為${shiCS}${G.kong.includes(shiL.zhi)?'，且旬空（自己心意未定或力不從心）':''}。`);
+ html+=`<h3>卦象整體</h3><ul class="pts">${g.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+ html+=`<div class="btns"><button id="copy" class="ghost">複製排盤文字</button></div><p class="note" id="copyMsg"></p>`;
+ $('analysis').innerHTML=html;
+ $('copy').onclick=()=>{const txt=[`所問：${$('q').value}`,`${$('d').value} ${$('t').value}　${lunar(G.utc)}`,`${gzs(G.ys,G.yz)}年 ${gzs(G.ms,G.mz)}月 ${gzs(G.ds,G.dz)}日（旬空${G.kong.map(k=>ZHI[k]).join('')}）`,`${B.name}（${head(B)}）${C?' 之 '+C.name:''}`,...[5,4,3,2,1,0].map(i=>{const l=B.lines[i];return`${SHEN[(s0+i)%6]}　${QIN[l.q]}${gzs(l.gan,l.zhi)}${WX[l.el]}　${l.yang?'▅▅▅':'▅ ▅'}${casts[i]===9?'○':casts[i]===6?'×':'　'}${B.shi===i+1?'世':B.ying===i+1?'應':'　'}${moving[i]?' → '+QIN[cl[i].q]+gzs(cl[i].gan,cl[i].zhi)+WX[cl[i].el]:''}`})].join('\n');
+  navigator.clipboard.writeText(txt).then(()=>$('copyMsg').textContent='已複製。',()=>$('copyMsg').textContent='瀏覽器不允許複製，請手動選取。')};
+}
+$('casts').addEventListener('change',e=>{const i=+e.target.dataset.i;casts[i]=e.target.value?+e.target.value:undefined;casts=Array.from({length:6},(_,k)=>casts[k]);render()});
+$('toss1').onclick=()=>{const i=casts.findIndex(v=>!v);const k=i<0?(casts=[],0):i;if(i<0){casts=[]}casts[k]=tossOne();casts=Array.from({length:6},(_,j)=>casts[j]);render()};
+$('toss6').onclick=()=>{casts=Array.from({length:6},tossOne);render()};
+$('clr').onclick=()=>{casts=[undefined,undefined,undefined,undefined,undefined,undefined];render()};
+for(const id of ['q','cat','d','t','zi'])$(id).addEventListener(id==='q'?'input':'change',render);
+render();
+}
+</script>
+</body>
+</html>
