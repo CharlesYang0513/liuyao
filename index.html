@@ -108,7 +108,7 @@ dl.yt dt{font-weight:700}dl.yt dd{margin:0}
    <div><label for="d">起卦日期</label><input type="date" id="d"></div>
    <div><label for="t">時間（台灣時間）</label><input type="time" id="t"></div>
   </div>
-  <label class="chk"><input type="checkbox" id="zi">23:00 後算次日（早子時換日）</label>
+  <label class="chk"><input type="checkbox" id="zi" checked>子時換日（23:00 後算次日；取消勾選則 00:00 換日）</label>
   <div class="cal" id="cal" aria-live="polite"></div>
   <label>六爻（由初爻往上擲）</label>
   <div class="btns" style="margin-top:0">
@@ -235,6 +235,20 @@ function renderCasts(){$('casts').innerHTML=[5,4,3,2,1,0].map(i=>`<div class="ca
 const yaoHTML=(yang,cls)=>`<div class="yao ${cls}">${yang?'<i></i>':'<i></i><i></i>'}</div>`;
 const gzs=(g,z)=>GAN[g]+ZHI[z];
 
+// 動爻本身的月日旺衰（只看月建、日辰，不看動變與他爻）
+function baseScore(o,G){return strength(o,G,true,null,[]).s}
+const SHICHEN=['23–01','01–03','03–05','05–07','07–09','09–11','11–13','13–15','15–17','17–19','19–21','21–23'];
+const muOf=el=>(CSS[el]+8)%12; // 墓庫地支
+// 應期參考：回傳 [地支, 理由] 清單
+function yingqi(y,G,moving,fly,movers,isFu){
+ const out=[],add=(z,why)=>out.push([z,why]);
+ const yz=y.zhi,cz=(yz+6)%12;
+ if(isFu){add((fly.zhi+6)%12,`沖開飛神${ZHI[fly.zhi]}，伏神得出`);add(yz,`值用神${ZHI[yz]}，伏神出現`)}
+ else if(moving){add(yz,'用神動，逢值');const hz=(13-yz)%12;add(hz,'用神動，逢合')}
+ else{add(cz,'用神靜，逢沖而動');add(yz,'用神靜，逢值')}
+ if(G.kong.includes(yz))add(cz,'用神旬空，逢沖則實（或出旬填實）');
+ for(const o of movers){if(ke(o.el)===y.el){add(muOf(o.el),`忌神${ZHI[o.zhi]}入墓，剋力收住`);add((o.zhi+6)%12,`忌神${ZHI[o.zhi]}逢沖散`)}}
+ return out}
 function strength(l,G,moving,chg,others){
  const pts=[];let s=0;const el=l.el,me=ZE[G.mz],de=ZE[G.dz];
  // 月建
@@ -266,9 +280,14 @@ function strength(l,G,moving,chg,others){
   if(chong(c,G.mz))pts.push(['-','化月破'])
   if(c===l.zhi)pts.push(['0','伏吟（化出同支），主呻吟不進'])
  }
- // 他爻動
+ // 他爻動：依動爻本身月日旺衰分輕重；用神臨日月，爻不能傷
  let yuan=false,ji=false;
- for(const o of others){if(gen(o.el)===el){s+=1;yuan=true;pts.push(['+',`${POS[o.pos-1]}${QIN[o.q]}${ZHI[o.zhi]}動來生（原神動）`])}else if(ke(o.el)===el){s-=1;ji=true;pts.push(['-',`${POS[o.pos-1]}${QIN[o.q]}${ZHI[o.zhi]}動來剋（忌神動）`])}}
+ const onDM=l.zhi===G.dz?'日辰':l.zhi===G.mz?'月建':'';
+ for(const o of others){const ob=baseScore(o,G),ost=ob>=2.5?'旺':ob>0?'中平':'衰',nm=`${POS[o.pos-1]}${QIN[o.q]}${ZHI[o.zhi]}`;
+  if(gen(o.el)===el){const w=ob>=2.5?1.5:ob>0?1:0.5;s+=w;yuan=true;pts.push(['+',`${nm}動來生（原神動，${ost}，+${w}）`])}
+  else if(ke(o.el)===el){ji=true;
+   if(onDM)pts.push(['0',`${nm}動來剋，但用神臨${onDM}，爻不能傷日月，不為害`]);
+   else{const w=ob>=2.5?1.5:ob>0?1:0.5;s-=w;pts.push(['-',`${nm}動來剋（忌神動，${ost}，−${w}）`])}}}
  if(yuan&&ji){s+=1;pts.push(['+','原神、忌神同動，忌生原、原生用，轉為連續相生'])}
  return{s,pts};
 }
@@ -339,6 +358,16 @@ function render(){
  else if(fu){const fly=B.lines[fu.pos-1];const r=strength(fu,G,false,null,movers);
   if(gen(fly.el)===fu.el){r.s+=1;r.pts.push(['+','飛神生伏神，伏神得助'])}else if(ke(fly.el)===fu.el){r.s-=1.5;r.pts.push(['-','飛神剋伏神，伏神受制'])}else if(gen(fu.el)===fly.el)r.pts.push(['-','伏神生飛神，洩氣'])
   if(moving[fu.pos-1]||chong(fly.zhi,G.dz))r.pts.push(['+','飛神動或逢日沖，伏神可出'])
+  // 用神不上卦，但動爻化出用神
+  if(cl){for(let i=0;i<6;i++){if(!moving[i]||cl[i].q!==fu.q)continue;const src=B.lines[i],c=cl[i],cb=baseScore(c,G);
+   const nm=`${POS[i]}${QIN[src.q]}${ZHI[src.zhi]}化出${QIN[c.q]}${gzs(c.gan,c.zhi)}${WX[c.el]}`;
+   let txt=`${nm}：用神從動爻變出，伏而能現`;
+   if(ke(src.el)===fu.el)txt+='；忌神化出用神，主先受制、後轉出（先難後易）';
+   else if(gen(src.el)===fu.el)txt+='；原神化出用神，生扶有力';
+   if(G.kong.includes(c.zhi))txt+='；但化出之爻旬空，出空方應';
+   if(chong(c.zhi,G.mz))txt+='；但化出之爻月破';
+   if(cb>0&&!G.kong.includes(c.zhi)&&!chong(c.zhi,G.mz)){r.s+=0.5;r.pts.push(['+',txt+`（化出之爻得月日之力，+0.5）`])}
+   else r.pts.push(['0',txt+'（化出之爻衰，只註記）'])}}
   r.pts.unshift(['0',`用神不上卦，伏於${POS[fu.pos-1]}${QIN[fly.q]}${ZHI[fly.zhi]}之下：${QIN[fu.q]}${gzs(fu.gan,fu.zhi)}${WX[fu.el]}`]);
   cand=[{l:fu,i:fu.pos-1,r,fu:true}]}
  for(const [k,c] of cand.entries()){const sc=c.r.s,lv=sc>=2.5?'旺而有力':sc>=0.5?'中平，可用':sc>-1.5?'偏衰':'衰弱無力';
@@ -357,6 +386,11 @@ function render(){
   if(he(y.zhi,shiL.zhi))t+=' 用神與世爻相合，有合作、牽連之象。';
   if(chong(y.zhi,shiL.zhi))t+=' 用神與世爻相沖，有阻隔、變動之象。';
   html+=`<h3>世爻與用神</h3><p>${t}</p>`}
+ // 應期參考
+ if(!isM&&cand.length){const c0=cand[0],fly=c0.fu?B.lines[c0.l.pos-1]:null;
+  const yq=yingqi(c0.l,G,!c0.fu&&moving[c0.i],fly,movers.filter(o=>o.pos!==c0.l.pos),!!c0.fu);
+  const seen=new Map();for(const [z,w] of yq){if(!seen.has(z))seen.set(z,[]);if(!seen.get(z).includes(w))seen.get(z).push(w)}
+  html+=`<h3>應期參考</h3><ul class="pts">${[...seen].map(([z,ws])=>`<li><b>${ZHI[z]}</b>（${SHICHEN[z]} 時）：${ws.join('；')}</li>`).join('')}</ul><p class="note">地支可作時辰、日、月看：當日之事看時辰，近事看日，遠事看月。只列常見取法，實際仍需配合卦理判斷。</p>`}
  // 卦象整體
  const g=[];
  if(!hasMv)g.push('靜卦：無動爻，事情維持現狀，以用神旺衰與日辰判斷。');
